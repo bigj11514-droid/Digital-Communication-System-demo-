@@ -94,7 +94,18 @@ body {
 .notice-form textarea {
   resize: vertical;
 }
+.access-input{
+  border: 1px solid;
 
+  padding: 10px;
+  width: 40%;
+  margin-left: 10px;
+  border-radius: 5px;
+}
+.school-code{
+  display: flex;
+  align-items: center;
+}
 .button {
   display: inline-flex;
   align-items: center;
