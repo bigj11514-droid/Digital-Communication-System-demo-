@@ -117,6 +117,9 @@ body {
   font-weight: 700;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
+.set-reminder{
+  margin-left: 40px;
+}
 #design{
   font-size: 150%;
   padding: 10px;
