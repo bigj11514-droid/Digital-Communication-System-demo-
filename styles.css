@@ -32,6 +32,8 @@ body {
 .hero__inner {
   max-width: 960px;
   margin: 0 auto;
+  display: flex;
+  font-size: 50%;
 }
 
 .hero h1 {
@@ -594,5 +596,11 @@ img {
   }
   .panel--board {
     grid-column: 1 / -1;
+  }
+  .hero__inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    font-size: 50%;
   }
 }
