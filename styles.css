@@ -631,4 +631,8 @@ img {
     margin-left: 0px;
     width: 100%;
   }
+  .search{
+    align-self: start;
+    margin-bottom: 0px;
+  }
 }
