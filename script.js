@@ -88,7 +88,7 @@ function handleAccessSubmit(event) {
 
 function fallbackShare(message) {
   const encoded = encodeURIComponent(`${message}\n\nAbundant Life Academy Notice Board`);
-  const whatsappUrl = `https://wa.me/?text=${encoded}`;
+  const whatsappUrl = `https://wa.me/+233207918169?text=${encoded}`;
   window.open(whatsappUrl, '_blank');
 }
 
