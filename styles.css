@@ -635,4 +635,11 @@ img {
     align-self: start;
     margin-bottom: 0px;
   }
+  .set-reminder{
+    margin-left: 0px;
+    margin-top: 10px;
+    border: 1px solid rgb(164, 106, 212);
+    border-top: transparent;
+    border-bottom: transparent;
+  }
 }
