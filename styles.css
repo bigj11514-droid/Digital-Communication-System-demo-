@@ -627,5 +627,8 @@ img {
     flex-direction: column;
     align-items: start;
   }
-  
+  .access-input{
+    margin-left: 0px;
+    width: 100%;
+  }
 }
