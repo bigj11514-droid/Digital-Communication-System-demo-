@@ -569,13 +569,18 @@ img {
 }
 
 .brand{
-    color: var(--primary);
-    text-shadow: 3px 0px 1px rgba(249, 115, 22, 0.24);
-    font-size: 150%;
-    padding: 10px;
-    text-decoration: none;
-    letter-spacing: 1px;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  color: var(--primary);
+  text-shadow: 3px 0px 1px rgba(249, 115, 22, 0.24);
+  font-size: 150%;
+  padding: 10px;
+  text-decoration: none;
+  letter-spacing: 1px;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.button--primary{
+  width: 100%;
+  border: 1px solid rgb(255, 255, 255);
 }
 
 @media (max-width: 900px) {
