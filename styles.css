@@ -23,7 +23,7 @@ body {
 }
 
 .hero {
-  background: linear-gradient(180deg, #ac59db 30%, #0a0a4e 75%);
+  background: linear-gradient(180deg, #6c398a 30%, #b700ffc0 75%);
   color: white;
   padding: 2.5rem 1.25rem;
   text-align: center;
@@ -130,6 +130,10 @@ img{
 }
 .set-button{
   margin-left: 40px;
+  border: 2px solid rgb(164, 106, 212);
+  border-top: transparent;
+  border-bottom: transparent;
+  background-color: #f2f2f3;
 }
 #design{
   font-size: 150%;
@@ -215,6 +219,10 @@ a{
 .set-reminder {
   padding: 0.45rem 0.7rem;
   font-size: 0.85rem;
+  background-color: #f2f2f3;
+  border: 1px solid rgb(164, 106, 212);
+    border-top: transparent;
+    border-bottom: transparent;
 }
 
 .reminders-list {
@@ -638,8 +646,6 @@ img {
   .set-reminder{
     margin-left: 0px;
     margin-top: 10px;
-    border: 1px solid rgb(164, 106, 212);
-    border-top: transparent;
-    border-bottom: transparent;
+    
   }
 }
