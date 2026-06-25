@@ -176,6 +176,7 @@ a{
 .button--secondary {
   background: var(--accent);
   color: var(--text);
+  width: 100%;
 }
 
 .panel--controls {
