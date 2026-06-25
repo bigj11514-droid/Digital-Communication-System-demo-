@@ -14,8 +14,10 @@ const accessInput = document.getElementById('accessInput');
 const accessMessage = document.getElementById('accessMessage');
 
 const storageKey = 'abundantLifeNoticeBoard';
+storageKey = 'SCHOOLNOTICEBOARD2026'; // for testing, can be changed
 const authKey = 'abundantLifeBoardAuth';
 const accessCode = 'ABUNDANTLIFE2026';
+accessCode = 'SCHOOLCODE2026'; // for testing, can be changed
 let notices = [];
 let editingId = null;
 let isAuthorized = false;
