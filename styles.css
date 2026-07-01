@@ -102,6 +102,23 @@ img{
 .notice-form textarea {
   resize: vertical;
 }
+
+.parent-notifications-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.parent-notifications-actions .button--secondary {
+  width: auto;
+  padding: 0.75rem 1rem;
+}
+
+.parent-notify-note {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
 .access-input{
   border: 1px solid;
 

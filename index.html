@@ -12,11 +12,7 @@
         <img
           src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 140'%3E%3Cdefs%3E%3ClinearGradient id='g1' x1='0' x2='1' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%237c3aed'/%3E%3Cstop offset='1' stop-color='%23f9e05c'/%3E%3C/linearGradient%3E%3ClinearGradient id='g2' x1='0' x2='0' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%23fff7d8'/%3E%3Cstop offset='1' stop-color='%23f9e05c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M70 10 L25 40 L25 95 C25 110 40 125 70 125 C100 125 115 110 115 95 L115 40 Z' fill='url(%23g1)' stroke='%231b004b' stroke-width='4'/%3E%3Cpath d='M70 25 L50 55 L90 55 Z' fill='%23fff7d8'/%3E%3Crect x='43' y='60' width='54' height='45' rx='10' fill='url(%23g2)' stroke='%231b004b' stroke-width='3'/%3E%3Ccircle cx='70' cy='82' r='12' fill='%237c3aed'/%3E%3Cpath d='M58 96 C62 100 78 100 82 96' stroke='%231b004b' stroke-width='3' fill='none'/%3E%3C/svg%3E"
           alt="School Logo"
-          style="
-            width: 100px;
-            max-width: 100px;
-            display: block;
-          "
+          style="width: 100px; max-width: 100px; display: block"
         />
         <div class="header-text">
           <h1>[School Name]</h1>
@@ -31,8 +27,8 @@
       <section class="panel panel--board">
         <h2>Digital Communication System</h2>
         <p class="board-note">
-          School staff can share announcements using the Share
-          button on each notice.
+          School staff can share announcements using the Share button on each
+          notice.
         </p>
         <div id="noticeList" class="notice-list"></div>
         <p id="emptyMessage" class="empty-message">
@@ -53,7 +49,8 @@
           <label
             style="margin: 0; display: flex; gap: 0.5rem; align-items: center"
           >
-            <input type="checkbox" id="liveFeedToggle"  class="checkbox"/> Live updates
+            <input type="checkbox" id="liveFeedToggle" class="checkbox" /> Live
+            updates
           </label>
           <button id="clearFeed" class="button set-button">Clear Feed</button>
         </div>
@@ -119,8 +116,8 @@
           <div class="principal-content">
             <h2>Principal's Message</h2>
             <p>
-              Welcome to [School Name] Digital Communication System. Our
-              school is committed to supporting academic excellence, character
+              Welcome to [School Name] Digital Communication System. Our school
+              is committed to supporting academic excellence, character
               development, and a safe learning community for every learner.
             </p>
             <p class="quote">
@@ -326,8 +323,8 @@
           />
           <div class="contact-content">
             <p class="school-description">
-              [School Name] is a leading educational institution dedicated
-              to fostering academic excellence and character development. Our
+              [School Name] is a leading educational institution dedicated to
+              fostering academic excellence and character development. Our
               state-of-the-art facilities, experienced faculty, and supportive
               community create an ideal learning environment for every student.
             </p>
@@ -362,7 +359,8 @@
             <input
               type="password"
               id="accessInput"
-              placeholder="Enter school code here" class="access-input" 
+              placeholder="Enter school code here"
+              class="access-input"
             />
           </label>
           <button type="submit" class="button button--secondary">
@@ -408,6 +406,26 @@
             Date
             <input type="date" id="noticeDate" required />
           </label>
+          <label>
+            Notify parents (WhatsApp numbers or emails, one per line)
+            <textarea
+              id="parentContacts"
+              rows="3"
+              placeholder="e.g. +233501234567 or parent@example.com"
+            ></textarea>
+          </label>
+          <div class="parent-notifications-actions">
+            <button
+              type="button"
+              id="saveParentContacts"
+              class="button button--secondary"
+            >
+              Save Parent Contacts
+            </button>
+          </div>
+          <p id="parentNotificationStatus" class="parent-notify-note">
+            No parent contacts saved yet.
+          </p>
           <label>
             Upload Picture (Optional)
             <input type="file" id="noticeImage" accept="image/*" />

@@ -12,13 +12,16 @@ const noticeType = document.getElementById('noticeType');
 const accessForm = document.getElementById('accessForm');
 const accessInput = document.getElementById('accessInput');
 const accessMessage = document.getElementById('accessMessage');
+const parentContactsInput = document.getElementById('parentContacts');
+const saveParentContactsBtn = document.getElementById('saveParentContacts');
+const parentNotificationStatus = document.getElementById('parentNotificationStatus');
 
-const storageKey = 'abundantLifeNoticeBoard';
-storageKey = 'SCHOOLNOTICEBOARD2026'; // for testing, can be changed
+const storageKey = 'SCHOOLNOTICEBOARD2026';
 const authKey = 'abundantLifeBoardAuth';
-const accessCode = 'ABUNDANTLIFE2026';
-accessCode = 'SCHOOLCODE2026'; // for testing, can be changed
+const accessCode = 'SCHOOLCODE2026';
+const parentContactsKey = 'schoolParentContacts';
 let notices = [];
+let parentContacts = [];
 let editingId = null;
 let isAuthorized = false;
 
@@ -29,6 +32,90 @@ function loadNotices() {
 
 function saveNotices() {
   localStorage.setItem(storageKey, JSON.stringify(notices));
+}
+
+function loadParentContacts() {
+  try {
+    const stored = localStorage.getItem(parentContactsKey);
+    parentContacts = stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    parentContacts = [];
+  }
+
+  if (parentContactsInput) {
+    parentContactsInput.value = parentContacts.join('\n');
+  }
+  updateParentNotificationStatus();
+}
+
+function syncParentContactsFromInput(showAlert = false) {
+  if (!parentContactsInput) return;
+
+  const contacts = parentContactsInput.value
+    .split(/\n|,/)
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  parentContacts = contacts;
+  try {
+    localStorage.setItem(parentContactsKey, JSON.stringify(parentContacts));
+  } catch (e) {
+    console.warn('Unable to save parent contacts', e);
+  }
+  updateParentNotificationStatus();
+
+  if (showAlert) {
+    if (parentContacts.length) {
+      alert(`Saved ${parentContacts.length} parent contact${parentContacts.length === 1 ? '' : 's'}.`);
+    } else {
+      alert('No parent contacts were saved.');
+    }
+  }
+}
+
+function saveParentContactsFromInput() {
+  syncParentContactsFromInput(true);
+}
+
+function updateParentNotificationStatus() {
+  if (!parentNotificationStatus) return;
+  if (parentContacts.length) {
+    parentNotificationStatus.textContent = `${parentContacts.length} parent contact${parentContacts.length === 1 ? '' : 's'} saved. New school posts will notify them.`;
+  } else {
+    parentNotificationStatus.textContent = 'No parent contacts saved yet. Add WhatsApp numbers or email addresses to notify parents.';
+  }
+}
+
+function notifyParents(notice) {
+  if (!parentContacts.length) {
+    updateParentNotificationStatus();
+    return;
+  }
+
+  const message = `School notice: ${notice.title}\n${notice.body}\nDate: ${formatDate(notice.date)}\n\nPlease check the school communication system.`;
+  const subject = `School Notice: ${notice.title}`;
+
+  parentContacts.forEach((contact) => {
+    const value = contact.trim();
+    if (!value) return;
+
+    const isEmail = value.includes('@');
+    const whatsappNumber = value.replace(/[^\d+]/g, '');
+    const isPhone = whatsappNumber.length >= 7;
+    let url = '';
+
+    if (isEmail) {
+      url = `mailto:${value}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+    } else if (isPhone) {
+      url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    } else {
+      url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    }
+
+    window.open(url, '_blank', 'noopener,noreferrer');
+  });
+
+  updateParentNotificationStatus();
 }
 
 function loadAuthorization() {
@@ -196,6 +283,8 @@ function addNotice(event) {
 }
 
 function createAndSaveNotice(title, body, date, imageData, type = 'general') {
+  let createdNotice = null;
+
   if (editingId) {
     notices = notices.map((notice) =>
       notice.id === editingId
@@ -205,7 +294,7 @@ function createAndSaveNotice(title, body, date, imageData, type = 'general') {
     editingId = null;
     noticeForm.querySelector('.button--primary').textContent = 'Add Notice';
   } else {
-    notices.unshift({
+    createdNotice = {
       id: crypto.randomUUID(),
       title,
       body,
@@ -214,12 +303,27 @@ function createAndSaveNotice(title, body, date, imageData, type = 'general') {
       type: type || 'general',
       createdAt: new Date().toISOString(),
       updatedAt: null,
-    });
+    };
+    notices.unshift(createdNotice);
   }
 
   saveNotices();
+
+  if (parentContactsInput && parentContactsInput.value.trim()) {
+    syncParentContactsFromInput(false);
+  }
+
+  if (createdNotice && parentContacts.length) {
+    notifyParents(createdNotice);
+  } else if (createdNotice) {
+    updateParentNotificationStatus();
+  }
+
   renderNotices(searchInput.value);
   noticeForm.reset();
+  if (parentContactsInput) {
+    parentContactsInput.value = parentContacts.join('\n');
+  }
   noticeImage.value = '';
 }
 
@@ -248,9 +352,13 @@ function deleteNotice(id) {
 noticeForm.addEventListener('submit', addNotice);
 searchInput.addEventListener('input', () => renderNotices(searchInput.value));
 accessForm.addEventListener('submit', handleAccessSubmit);
+if (saveParentContactsBtn) {
+  saveParentContactsBtn.addEventListener('click', saveParentContactsFromInput);
+}
 
 loadAuthorization();
 loadNotices();
+loadParentContacts();
 renderNotices();
 
 // Notification / Service Worker support
@@ -366,6 +474,7 @@ createAndSaveNotice = function (title, body, date, imageData, type) {
   if (!isEdit) {
     const latest = notices[0];
     onNewNotice(latest);
+    notifyParents(latest);
     // broadcast change for other tabs
     try {
       localStorage.setItem(storageKey + ':lastUpdate', JSON.stringify({ id: latest.id, ts: new Date().toISOString() }));
