@@ -761,4 +761,8 @@ img {
     margin-top: 10px;
     
   }
+  .notification-form-grid{
+    display: flex;
+    flex-direction: column;
+  }
 }
