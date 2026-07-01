@@ -298,6 +298,12 @@ a{
   width: auto;
 }
 
+input[type="email"],input[type="tel"]{
+  padding: 10px;
+  border-radius: 10px;
+  background-image: linear-gradient(180deg, #efe9f3 30%, #ae6dda79 60%) ;
+  
+}
 .notice-list {
   display: grid;
   gap: 1.25rem;
