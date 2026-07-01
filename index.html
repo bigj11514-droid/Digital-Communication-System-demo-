@@ -93,14 +93,69 @@
         </div>
         <div
           class="notifications-controls"
-          style="display: flex; gap: 0.5rem; align-items: center"
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: stretch;
+          "
         >
-          <button id="enableNotifications" class="button button--secondary">
-            Enable Notifications
-          </button>
-          <button id="testNotification" class="button button--primary">
-            Send Test Notification
-          </button>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem">
+            <label
+              style="
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+              "
+            >
+              Gmail address
+              <input
+                type="email"
+                id="parentEmail"
+                placeholder="parent@gmail.com"
+                required
+              />
+            </label>
+            <label
+              style="
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+              "
+            >
+              WhatsApp number
+              <input
+                type="tel"
+                id="parentWhatsapp"
+                placeholder="+233501234567"
+                required
+              />
+            </label>
+          </div>
+          <div
+            style="
+              display: flex;
+              gap: 0.5rem;
+              align-items: center;
+              flex-wrap: wrap;
+            "
+          >
+            <button id="saveParentPreferences" class="button button--secondary">
+              Save Parent Details
+            </button>
+            <button id="enableNotifications" class="button button--secondary">
+              Enable Notifications
+            </button>
+            <button id="testNotification" class="button button--primary">
+              Send Test Notification
+            </button>
+          </div>
+          <p id="parentPreferenceStatus" class="parent-notify-note">
+            Enter your Gmail address and WhatsApp number before enabling
+            notifications.
+          </p>
         </div>
       </section>
 

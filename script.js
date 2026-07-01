@@ -15,12 +15,17 @@ const accessMessage = document.getElementById('accessMessage');
 const parentContactsInput = document.getElementById('parentContacts');
 const saveParentContactsBtn = document.getElementById('saveParentContacts');
 const parentNotificationStatus = document.getElementById('parentNotificationStatus');
+const parentEmailInput = document.getElementById('parentEmail');
+const parentWhatsappInput = document.getElementById('parentWhatsapp');
+const saveParentPreferencesBtn = document.getElementById('saveParentPreferences');
+const parentPreferenceStatus = document.getElementById('parentPreferenceStatus');
 
 const storageKey = 'SCHOOLNOTICEBOARD2026';
 const authKey = 'abundantLifeBoardAuth';
 const accessCode = 'SCHOOLCODE2026';
 const parentContactsKey = 'schoolParentContacts';
 const notificationPreferenceKey = 'schoolBrowserNotificationsEnabled';
+const parentProfileKey = 'schoolParentProfile';
 let notices = [];
 let parentContacts = [];
 let editingId = null;
@@ -87,6 +92,86 @@ function updateParentNotificationStatus() {
   }
 }
 
+function isValidGmail(value) {
+  return /^[^\s@]+@gmail\.com$/i.test(value.trim());
+}
+
+function isValidWhatsApp(value) {
+  const normalized = value.replace(/[^\d+]/g, '');
+  return /^\+?[1-9]\d{7,14}$/.test(normalized);
+}
+
+function getStoredParentProfile() {
+  try {
+    const stored = localStorage.getItem(parentProfileKey);
+    return stored ? JSON.parse(stored) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function updateParentPreferenceStatus() {
+  if (!parentPreferenceStatus) return;
+  const profile = getStoredParentProfile();
+  if (profile && profile.email && profile.whatsapp) {
+    parentPreferenceStatus.textContent = `Ready to receive notices at ${profile.email} and ${profile.whatsapp}.`;
+  } else {
+    parentPreferenceStatus.textContent = 'Enter your Gmail address and WhatsApp number before enabling notifications.';
+  }
+}
+
+function saveParentPreferences(showAlert = false) {
+  if (!parentEmailInput || !parentWhatsappInput) return false;
+
+  const email = parentEmailInput.value.trim();
+  const whatsapp = parentWhatsappInput.value.trim();
+
+  if (!email || !whatsapp) {
+    if (parentPreferenceStatus) {
+      parentPreferenceStatus.textContent = 'Please enter both your Gmail address and WhatsApp number.';
+    }
+    if (showAlert) alert('Please enter both your Gmail address and WhatsApp number.');
+    return false;
+  }
+
+  if (!isValidGmail(email)) {
+    if (parentPreferenceStatus) {
+      parentPreferenceStatus.textContent = 'Please enter a valid Gmail address ending in @gmail.com.';
+    }
+    if (showAlert) alert('Please enter a valid Gmail address ending in @gmail.com.');
+    return false;
+  }
+
+  if (!isValidWhatsApp(whatsapp)) {
+    if (parentPreferenceStatus) {
+      parentPreferenceStatus.textContent = 'Please enter a valid WhatsApp number such as +233501234567.';
+    }
+    if (showAlert) alert('Please enter a valid WhatsApp number such as +233501234567.');
+    return false;
+  }
+
+  const profile = {
+    email,
+    whatsapp,
+    updatedAt: new Date().toISOString(),
+  };
+  localStorage.setItem(parentProfileKey, JSON.stringify(profile));
+  updateParentPreferenceStatus();
+  if (showAlert) alert('Your notification details were saved.');
+  return true;
+}
+
+function loadParentPreferences() {
+  const profile = getStoredParentProfile();
+  if (parentEmailInput && profile && profile.email) {
+    parentEmailInput.value = profile.email;
+  }
+  if (parentWhatsappInput && profile && profile.whatsapp) {
+    parentWhatsappInput.value = profile.whatsapp;
+  }
+  updateParentPreferenceStatus();
+}
+
 function showBrowserNotification(title, body, url = window.location.href) {
   const options = {
     body,
@@ -108,14 +193,23 @@ function showBrowserNotification(title, body, url = window.location.href) {
 
 function notifyParents(notice) {
   const enabled = localStorage.getItem(notificationPreferenceKey) === 'true';
-  if (!enabled) {
+  const profile = getStoredParentProfile();
+  if (!enabled || !profile) {
     updateParentNotificationStatus();
     return;
   }
 
   const title = `New school notice: ${notice.title}`;
   const body = `${notice.body}\n\nOpen the communication system to view it.`;
+  const emailBody = `School notice:\n${notice.title}\n\n${notice.body}\n\nDate: ${formatDate(notice.date)}\n\nPlease view it in the school communication system.`;
+
   showBrowserNotification(title, body, window.location.href);
+
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(profile.email)}&su=${encodeURIComponent(`School Notice: ${notice.title}`)}&body=${encodeURIComponent(emailBody)}`;
+  const whatsappUrl = `https://wa.me/${profile.whatsapp.replace(/[^\d+]/g, '')}?text=${encodeURIComponent(`New school notice: ${notice.title}\n\n${notice.body}`)}`;
+
+  window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+  window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   updateParentNotificationStatus();
 }
 
@@ -359,6 +453,7 @@ if (saveParentContactsBtn) {
 loadAuthorization();
 loadNotices();
 loadParentContacts();
+loadParentPreferences();
 renderNotices();
 
 // Notification / Service Worker support
@@ -386,6 +481,10 @@ function updateNotificationButtons() {
 }
 
 async function requestNotificationPermission() {
+  if (!saveParentPreferences()) {
+    return;
+  }
+
   if (!('Notification' in window)) {
     alert('Notifications are not supported in this browser.');
     return;
@@ -395,7 +494,7 @@ async function requestNotificationPermission() {
   if (permission === 'granted') {
     localStorage.setItem(notificationPreferenceKey, 'true');
     try {
-      showBrowserNotification('Notifications enabled', 'You will receive school notices here.');
+      showBrowserNotification('Notifications enabled', 'You will receive school notices in your browser and by email.');
     } catch (e) {
       console.warn('showNotification failed:', e);
     }
@@ -413,6 +512,7 @@ function showTestNotification() {
 }
 
 if (enableNotificationsBtn) enableNotificationsBtn.addEventListener('click', requestNotificationPermission);
+if (saveParentPreferencesBtn) saveParentPreferencesBtn.addEventListener('click', () => saveParentPreferences(true));
 if (testNotificationBtn) testNotificationBtn.addEventListener('click', showTestNotification);
 
 // Attempt to register service worker on load
