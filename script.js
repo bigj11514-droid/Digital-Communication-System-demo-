@@ -20,6 +20,7 @@ const storageKey = 'SCHOOLNOTICEBOARD2026';
 const authKey = 'abundantLifeBoardAuth';
 const accessCode = 'SCHOOLCODE2026';
 const parentContactsKey = 'schoolParentContacts';
+const notificationPreferenceKey = 'schoolBrowserNotificationsEnabled';
 let notices = [];
 let parentContacts = [];
 let editingId = null;
@@ -80,41 +81,41 @@ function saveParentContactsFromInput() {
 function updateParentNotificationStatus() {
   if (!parentNotificationStatus) return;
   if (parentContacts.length) {
-    parentNotificationStatus.textContent = `${parentContacts.length} parent contact${parentContacts.length === 1 ? '' : 's'} saved. New school posts will notify them.`;
+    parentNotificationStatus.textContent = `${parentContacts.length} parent contact${parentContacts.length === 1 ? '' : 's'} saved. Browser notifications will also appear for opted-in parents.`;
   } else {
-    parentNotificationStatus.textContent = 'No parent contacts saved yet. Add WhatsApp numbers or email addresses to notify parents.';
+    parentNotificationStatus.textContent = 'No parent contacts saved yet. Browser notifications will still appear for parents who enable them.';
+  }
+}
+
+function showBrowserNotification(title, body, url = window.location.href) {
+  const options = {
+    body,
+    icon: 'school building.jpg',
+    badge: 'school building.jpg',
+    data: url,
+  };
+
+  if (swRegistration && swRegistration.showNotification) {
+    swRegistration.showNotification(title, options).catch(() => {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, options);
+      }
+    });
+  } else if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(title, options);
   }
 }
 
 function notifyParents(notice) {
-  if (!parentContacts.length) {
+  const enabled = localStorage.getItem(notificationPreferenceKey) === 'true';
+  if (!enabled) {
     updateParentNotificationStatus();
     return;
   }
 
-  const message = `School notice: ${notice.title}\n${notice.body}\nDate: ${formatDate(notice.date)}\n\nPlease check the school communication system.`;
-  const subject = `School Notice: ${notice.title}`;
-
-  parentContacts.forEach((contact) => {
-    const value = contact.trim();
-    if (!value) return;
-
-    const isEmail = value.includes('@');
-    const whatsappNumber = value.replace(/[^\d+]/g, '');
-    const isPhone = whatsappNumber.length >= 7;
-    let url = '';
-
-    if (isEmail) {
-      url = `mailto:${value}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
-    } else if (isPhone) {
-      url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-    } else {
-      url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    }
-
-    window.open(url, '_blank', 'noopener,noreferrer');
-  });
-
+  const title = `New school notice: ${notice.title}`;
+  const body = `${notice.body}\n\nOpen the communication system to view it.`;
+  showBrowserNotification(title, body, window.location.href);
   updateParentNotificationStatus();
 }
 
@@ -313,10 +314,9 @@ function createAndSaveNotice(title, body, date, imageData, type = 'general') {
     syncParentContactsFromInput(false);
   }
 
-  if (createdNotice && parentContacts.length) {
+  if (createdNotice) {
+    onNewNotice(createdNotice);
     notifyParents(createdNotice);
-  } else if (createdNotice) {
-    updateParentNotificationStatus();
   }
 
   renderNotices(searchInput.value);
@@ -379,8 +379,10 @@ async function registerServiceWorker() {
 }
 
 function updateNotificationButtons() {
-  const granted = Notification.permission === 'granted';
-  if (enableNotificationsBtn) enableNotificationsBtn.textContent = granted ? 'Notifications Enabled' : 'Enable Notifications';
+  const granted = 'Notification' in window && Notification.permission === 'granted';
+  const enabledInStorage = localStorage.getItem(notificationPreferenceKey) === 'true';
+  const isEnabled = granted || enabledInStorage;
+  if (enableNotificationsBtn) enableNotificationsBtn.textContent = isEnabled ? 'Notifications Enabled' : 'Enable Notifications';
 }
 
 async function requestNotificationPermission() {
@@ -390,25 +392,24 @@ async function requestNotificationPermission() {
   }
   const permission = await Notification.requestPermission();
   updateNotificationButtons();
-  if (permission === 'granted' && swRegistration) {
+  if (permission === 'granted') {
+    localStorage.setItem(notificationPreferenceKey, 'true');
     try {
-      swRegistration.showNotification('Notifications enabled', { body: 'You will receive school notices here.' });
+      showBrowserNotification('Notifications enabled', 'You will receive school notices here.');
     } catch (e) {
       console.warn('showNotification failed:', e);
     }
+  } else {
+    localStorage.removeItem(notificationPreferenceKey);
   }
 }
 
 function showTestNotification() {
-  const title = 'Test Notice';
-  const options = { body: 'This is a test notification from the Saiddohnai Academy board.', data: window.location.href };
-  if (swRegistration && swRegistration.showNotification) {
-    swRegistration.showNotification(title, options);
-  } else if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification(title, options);
-  } else {
+  if (Notification.permission !== 'granted' && localStorage.getItem(notificationPreferenceKey) !== 'true') {
     alert('Please enable notifications first.');
+    return;
   }
+  showBrowserNotification('Test Notice', 'This is a test notification from the school communication system.');
 }
 
 if (enableNotificationsBtn) enableNotificationsBtn.addEventListener('click', requestNotificationPermission);
@@ -457,12 +458,8 @@ function pushToFeed(notice) {
 function onNewNotice(notice) {
   if (liveFeedEnabled) pushToFeed(notice);
   // optionally send a notification for remote listeners
-  if (Notification.permission === 'granted' && liveFeedEnabled) {
-    if (swRegistration && swRegistration.showNotification) {
-      swRegistration.showNotification(notice.title, { body: notice.body, data: window.location.href });
-    } else {
-      new Notification(notice.title, { body: notice.body, data: window.location.href });
-    }
+  if ((Notification.permission === 'granted' || localStorage.getItem(notificationPreferenceKey) === 'true') && liveFeedEnabled) {
+    showBrowserNotification(notice.title, notice.body, window.location.href);
   }
 }
 
@@ -612,12 +609,8 @@ function addReminderForEvent(title, eventDateISO, minutesBefore) {
 function sendReminderNotification(reminder) {
   const title = `Reminder: ${reminder.title}`;
   const body = `Event on ${new Date(reminder.eventDate).toLocaleDateString()}`;
-  if (Notification.permission === 'granted') {
-    if (swRegistration && swRegistration.showNotification) {
-      swRegistration.showNotification(title, { body, data: window.location.href });
-    } else {
-      new Notification(title, { body, data: window.location.href });
-    }
+  if (Notification.permission === 'granted' || localStorage.getItem(notificationPreferenceKey) === 'true') {
+    showBrowserNotification(title, body, window.location.href);
   }
   // also push to feed for visibility
   const feedItem = { title: `Reminder: ${reminder.title}`, body, createdAt: new Date().toISOString() };
