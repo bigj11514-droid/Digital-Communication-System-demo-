@@ -75,40 +75,33 @@
             placeholder="Search announcements..."
           />
         </div>
-        <div class="summary">
-          <span id="noticeCount">0 notices</span>
+        <div class="controls-top">
+          <div class="summary">
+            <span id="noticeCount">0 notices</span>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">
+              Type
+              <select id="filterType">
+                <option value="all">All</option>
+                <option value="urgent">Urgent</option>
+                <option value="event">Event</option>
+                <option value="general">General</option>
+              </select>
+            </label>
+          </div>
         </div>
-        <div style="display: flex; gap: 0.75rem; align-items: center">
-          <label
-            style="margin: 0; display: flex; gap: 0.5rem; align-items: center"
-          >
-            Type
-            <select id="filterType">
-              <option value="all">All</option>
-              <option value="urgent">Urgent</option>
-              <option value="event">Event</option>
-              <option value="general">General</option>
-            </select>
-          </label>
-        </div>
-        <div
-          class="notifications-controls"
-          style="
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            align-items: stretch;
-          "
-        >
-          <div style="display: flex; flex-direction: column; gap: 0.5rem">
-            <label
-              style="
-                margin: 0;
-                display: flex;
-                flex-direction: column;
-                gap: 0.25rem;
-              "
-            >
+
+        <div class="notification-section">
+          <div class="notification-section__header">
+            <h3>Parent notification setup</h3>
+            <p>
+              Save your details once and receive school notices in your browser,
+              Gmail, and WhatsApp.
+            </p>
+          </div>
+          <div class="notification-form-grid">
+            <label class="notification-field">
               Gmail address
               <input
                 type="email"
@@ -117,14 +110,7 @@
                 required
               />
             </label>
-            <label
-              style="
-                margin: 0;
-                display: flex;
-                flex-direction: column;
-                gap: 0.25rem;
-              "
-            >
+            <label class="notification-field">
               WhatsApp number
               <input
                 type="tel"
@@ -134,14 +120,7 @@
               />
             </label>
           </div>
-          <div
-            style="
-              display: flex;
-              gap: 0.5rem;
-              align-items: center;
-              flex-wrap: wrap;
-            "
-          >
+          <div class="notification-actions">
             <button id="saveParentPreferences" class="button button--secondary">
               Save Parent Details
             </button>
