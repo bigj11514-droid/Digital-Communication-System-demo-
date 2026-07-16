@@ -785,4 +785,10 @@ img {
     display: flex;
     flex-direction: column;
   }
+  .set-button{
+    white-space: nowrap;
+  }
+  .set-reminder{
+    margin-left: 20px;
+  }
 }
